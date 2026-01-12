@@ -1,0 +1,38 @@
+import streamlit as st
+from pix2tex.cli import LatexOCR
+from PIL import Image
+from docx import Document
+import matplotlib.pyplot as plt
+
+# 1. Título de tu Web App
+st.title("Calculo Pro: De Imagen a LaTeX/Word")
+
+# 2. Subida de la captura del libro
+uploaded_file = st.file_uploader("Sube la captura de tu libro de Cálculo", type=["png", "jpg"])
+
+if uploaded_file:
+    img = Image.open(uploaded_file)
+    st.image(img, caption="Imagen cargada")
+
+    # 3. Convertir imagen a LaTeX (Gratis con Pix2TeX)
+    model = LatexOCR()
+    latex_code = model(img)
+    
+    st.subheader("Código LaTeX Generado:")
+    st.code(latex_code, language='latex')
+
+    # 4. Crear el archivo Word descargable
+    doc = Document()
+    doc.add_heading('Resultado de mi Proyecto de Cálculo', 0)
+    doc.add_paragraph(f"Fórmula extraída: {latex_code}")
+    
+    # 5. Generar un gráfico atractivo (Ejemplo de Sucesión)
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro-') # Ejemplo de n^2
+    ax.set_title("Gráfico generado para el proyecto")
+    st.pyplot(fig)
+
+    # 6. Botón de descarga para Word
+    doc.save("proyecto_calculo.docx")
+    with open("proyecto_calculo.docx", "rb") as file:
+        st.download_button("Descargar mi archivo Word", file, "proyecto_calculo.docx")
